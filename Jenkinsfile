@@ -1,11 +1,20 @@
 pipeline {
   agent any
   stages {
-    stage('Checkout check') {
+    stage('SAST - Semgrep') {
       steps {
-        sh 'ls -la'
-        sh 'docker ps'
+        sh '''
+          docker run --rm -v "$WORKSPACE:/src" semgrep/semgrep \
+            semgrep scan --config auto /src --json --output /src/semgrep-report.json || true
+          docker run --rm -v "$WORKSPACE:/src" semgrep/semgrep \
+            semgrep scan --config auto /src --severity ERROR --error
+        '''
       }
+    }
+  }
+  post {
+    always {
+      archiveArtifacts artifacts: 'semgrep-report.json', allowEmptyArchive: true
     }
   }
 }
