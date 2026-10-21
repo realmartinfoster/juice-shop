@@ -4,10 +4,10 @@ pipeline {
     stage('SAST - Semgrep') {
       steps {
         sh '''
-          docker run --rm -v "$WORKSPACE:/src" semgrep/semgrep \
-            semgrep scan --config auto /src --json --output /src/semgrep-report.json || true
-          docker run --rm -v "$WORKSPACE:/src" semgrep/semgrep \
-            semgrep scan --config auto /src --severity ERROR --error
+          docker run --rm -v jenkins_home:/var/jenkins_home -w /var/jenkins_home/workspace/juice-shop-pipeline \
+            semgrep/semgrep semgrep scan --config auto . --json --output semgrep-report.json || true
+          docker run --rm -v jenkins_home:/var/jenkins_home -w /var/jenkins_home/workspace/juice-shop-pipeline \
+            semgrep/semgrep semgrep scan --config auto . --severity ERROR --error
         '''
       }
     }
